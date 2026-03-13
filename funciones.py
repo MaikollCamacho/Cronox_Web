@@ -1,22 +1,25 @@
+# funciones.py
 from datetime import datetime, timedelta
 
-def crear_recordatorio(titulo: str, tiempo_horas: float):
-    """Calcula el tiempo de expiración y asigna el estado inicial."""
+def crear_recordatorio(titulo: str, tiempo_horas: float, importancia: int, tipo: str):
+    """
+    Core logic to calculate priority and deadlines.
+    Lógica principal para calcular prioridad y fechas límite.
+    """
+    
+    # MATH OPERATION: Priority calculation (preventing division by zero)
+    # OPERACIÓN MATEMÁTICA: Cálculo de prioridad (evitando división por cero)
+    prioridad = round((importancia / max(tiempo_horas, 0.1)), 2)
+    
+    # Time handling using datetime library
+    # Manejo de tiempo usando la librería datetime
     tiempo_actual = datetime.now()
     tiempo_final = tiempo_actual + timedelta(hours=tiempo_horas)
     
-    recordatorio = {
+    return {
         "titulo": titulo,
-        "horas_asignadas": tiempo_horas,
-        "fecha_creacion": tiempo_actual.strftime("%Y-%m-%d %H:%M:%S"),
-        "fecha_limite": tiempo_final.strftime("%Y-%m-%d %H:%M:%S"),
-        "estado": "Olimpo"  # Activo
+        "tipo": tipo,
+        "prioridad": prioridad,
+        "fecha_limite": tiempo_final.strftime("%H:%M:%S"),
+        "estado": "Olimpo"
     }
-    return recordatorio
-
-def enviar_al_tartaro(lista_recordatorios: list, indice: int):
-    """Destierra un recordatorio al Tártaro (completado)."""
-    if 0 <= indice < len(lista_recordatorios):
-        lista_recordatorios[indice]["estado"] = "Tártaro"
-        return True
-    return False

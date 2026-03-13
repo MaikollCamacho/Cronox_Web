@@ -2,55 +2,88 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>CRONOX: Olimpo</title>
+    <title>CRONOX: Olimpo 2.0</title>
     <style>
-        body { font-family: 'Segoe UI', serif; background: #f4f1ea; color: #2c2c2c; display: flex; flex-direction: column; align-items: center; }
-        h1 { color: #b8860b; text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid #b8860b; padding-bottom: 10px; }
-        .templo { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #d4af37; width: 400px; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
-        button { background: #b8860b; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; border: none; }
-        button:hover { background: #8b6508; box-shadow: 0 0 15px #d4af37; }
-        .recordatorio { background: #fffcf5; border-left: 5px solid #d4af37; padding: 10px; margin: 10px 0; border-radius: 4px; display: flex; justify-content: space-between; }
+        :root { --oro: #d4af37; --marmol: #f4f1ea; --oscuro: #2c2c2c; --rojo: #c0392b; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--marmol); color: var(--oscuro); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .templo { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid var(--oro); width: 100%; max-width: 450px; }
+        h1 { color: var(--oro); letter-spacing: 5px; text-align: center; margin-bottom: 10px; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: var(--oro); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #b8860b; transform: translateY(-2px); }
+        .recordatorio { background: #fffcf5; border-left: 5px solid var(--oro); padding: 15px; margin: 10px 0; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.5s ease; }
+        .prioridad-tag { font-size: 0.8rem; color: var(--oro); font-weight: bold; border: 1px solid var(--oro); padding: 2px 5px; border-radius: 4px; }
+        .btn-del { width: auto; background: var(--rojo); padding: 5px 12px; margin: 0; font-size: 1.2rem; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-    <h1>⚡ CRONOX ⚡</h1>
+    <h1>⚡ CRONOX: OLIMPO ⚡</h1>
     <div class="templo">
-        <h3>Invocación de Recordatorio</h3>
-        <input type="text" id="titulo" placeholder="¿Qué tarea dictan los dioses?">
-        <input type="number" id="tiempo" placeholder="Horas de plazo">
-        <button onclick="invocar()">Enviar al Olimpo</button>
+        <input type="text" id="titulo" placeholder="Tarea para los dioses...">
         
-        <hr>
-        <h3>Oráculo de Tareas</h3>
+        <select id="tipo">
+            <option value="⚔️ Guerra">⚔️ Guerra (Trabajo)</option>
+            <option value="📜 Sabiduría">📜 Sabiduría (Estudio)</option>
+            <option value="🍷 Placer">🍷 Placer (Ocio)</option>
+        </select>
+
+        <input type="number" id="horas" placeholder="Horas de plazo (ej: 1.5)" step="0.5">
+        <input type="number" id="importancia" placeholder="Importancia (1 al 10)" min="1" max="10">
+        
+        <button onclick="enviarAlOlimpo()">Invocar Recordatorio</button>
+        
+        <hr style="border: 0.5px solid #eee; margin: 20px 0;">
         <div id="lista"></div>
     </div>
 
     <script>
-        async function cargar() {
+        // Update view from backend data / Actualizar vista con datos del backend
+        async function actualizar() {
             const res = await fetch('/api/recordatorios');
-            const datos = await res.json();
-            const lista = document.getElementById('lista');
-            lista.innerHTML = datos.map(r => `
+            const recordatorios = await res.json();
+            
+            const contenedor = document.getElementById('lista');
+            contenedor.innerHTML = recordatorios.map((r, i) => `
                 <div class="recordatorio">
-                    <span><strong>${r.titulo}</strong></span>
-                    <span>${r.tiempo}h ✨</span>
+                    <div>
+                        <strong>${r.tipo} | ${r.titulo}</strong><br>
+                        <small>Expira: ${r.fecha_limite}</small>
+                        <div class="prioridad-tag">Prioridad: ${r.prioridad}</div>
+                    </div>
+                    <button class="btn-del" onclick="desterrar(${i})" title="Enviar al Tártaro">💀</button>
                 </div>
             `).join('');
         }
 
-        async function invocar() {
-            const titulo = document.getElementById('titulo').value;
-            const tiempo = document.getElementById('tiempo').value;
+        // Send new task to Python / Enviar nueva tarea a Python
+        async function enviarAlOlimpo() {
+            const data = {
+                titulo: document.getElementById('titulo').value,
+                tipo: document.getElementById('tipo').value,
+                tiempo_horas: parseFloat(document.getElementById('horas').value),
+                importancia: parseInt(document.getElementById('importancia').value)
+            };
+
+            if(!data.titulo || isNaN(data.tiempo_horas)) return alert("Mortal, llena los campos.");
+
             await fetch('/api/recordatorios', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ titulo, tiempo_horas: parseFloat(tiempo) })
+                body: JSON.stringify(data)
             });
-            cargar();
+
+            actualizar();
         }
-        setInterval(cargar, 3000); // Actualiza el oráculo cada 3 segundos
-        cargar();
+
+        // Remove task / Eliminar tarea
+        async function desterrar(idx) {
+            await fetch(`/api/recordatorios/${idx}`, { method: 'DELETE' });
+            actualizar();
+        }
+
+        // Initial load / Carga inicial
+        actualizar();
     </script>
 </body>
 </html>
