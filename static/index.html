@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRONOX: Olimpo</title>
+    <style>
+        body { font-family: 'Segoe UI', serif; background: #f4f1ea; color: #2c2c2c; display: flex; flex-direction: column; align-items: center; }
+        h1 { color: #b8860b; text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid #b8860b; padding-bottom: 10px; }
+        .templo { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #d4af37; width: 400px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #b8860b; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; border: none; }
+        button:hover { background: #8b6508; box-shadow: 0 0 15px #d4af37; }
+        .recordatorio { background: #fffcf5; border-left: 5px solid #d4af37; padding: 10px; margin: 10px 0; border-radius: 4px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <h1>⚡ CRONOX ⚡</h1>
+    <div class="templo">
+        <h3>Invocación de Recordatorio</h3>
+        <input type="text" id="titulo" placeholder="¿Qué tarea dictan los dioses?">
+        <input type="number" id="tiempo" placeholder="Horas de plazo">
+        <button onclick="invocar()">Enviar al Olimpo</button>
+        
+        <hr>
+        <h3>Oráculo de Tareas</h3>
+        <div id="lista"></div>
+    </div>
+
+    <script>
+        async function cargar() {
+            const res = await fetch('/api/recordatorios');
+            const datos = await res.json();
+            const lista = document.getElementById('lista');
+            lista.innerHTML = datos.map(r => `
+                <div class="recordatorio">
+                    <span><strong>${r.titulo}</strong></span>
+                    <span>${r.tiempo}h ✨</span>
+                </div>
+            `).join('');
+        }
+
+        async function invocar() {
+            const titulo = document.getElementById('titulo').value;
+            const tiempo = document.getElementById('tiempo').value;
+            await fetch('/api/recordatorios', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ titulo, tiempo_horas: parseFloat(tiempo) })
+            });
+            cargar();
+        }
+        setInterval(cargar, 3000); // Actualiza el oráculo cada 3 segundos
+        cargar();
+    </script>
+</body>
+</html>
