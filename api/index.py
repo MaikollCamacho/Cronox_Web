@@ -1,48 +1,51 @@
-# api/index.py
+# EN: Main API routing file / ES: Archivo principal de rutas API
 from fastapi import FastAPI
 from pydantic import BaseModel
-import sys
-import os
-
-# Path adjustment for Vercel deployment
-# Ajuste de ruta para el despliegue en Vercel
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from funciones import crear_recordatorio
+import funciones # EN: Import our logic / ES: Importamos nuestra lógica
 
 app = FastAPI()
 
-# Data model for incoming requests
-# Modelo de datos para las peticiones entrantes
-class RecordatorioIn(BaseModel):
-    titulo: str
-    tiempo_horas: float
-    importancia: int
-    tipo: str
+# EN: Temporary database / ES: Base de datos temporal
+base_datos_destinos = []
 
-# Database in memory (will reset on server restart)
-# Base de datos en memoria (se reiniciará al reiniciar el servidor)
-memoria_olimpo = []
+class DestinoInput(BaseModel):
+    nombre: str
+    dias: int
+    prioridad: str
 
-@app.get("/api/recordatorios")
-def ver_todos():
-    # Sort by priority: highest first
-    # Ordenar por prioridad: los más altos primero
-    return sorted(memoria_olimpo, key=lambda x: x['prioridad'], reverse=True)
+@app.post("/forjar")
+def forjar_destino(destino: DestinoInput):
+    # INTEGRACIÓN PASO 3: Validación de Entradas con .strip()
+    # EN: Clean input string / ES: Limpiar cadena de entrada
+    nombre_limpio = destino.nombre.strip()
+    
+    energia = funciones.calcular_energia(destino.dias, destino.prioridad)
+    
+    nuevo_destino = {
+        "nombre": nombre_limpio,
+        "dias": destino.dias,
+        "energia": energia
+    }
+    base_datos_destinos.append(nuevo_destino)
+    
+    # EN: Print professional table in terminal / ES: Imprimir tabla profesional en terminal
+    funciones.generar_reporte_consola(base_datos_destinos)
+    
+    return {"mensaje": f"Destino '{nombre_limpio}' forjado con éxito", "energia": energia}
 
-@app.post("/api/recordatorios")
-def invocar(rec: RecordatorioIn):
-    # Use our math logic from funciones.py
-    # Usar nuestra lógica matemática de funciones.py
-    nuevo = crear_recordatorio(rec.titulo, rec.tiempo_horas, rec.importancia, rec.tipo)
-    memoria_olimpo.append(nuevo)
-    return nuevo
-
-@app.delete("/api/recordatorios/{indice}")
-def desterrar(indice: int):
-    # Sort before deleting to ensure index matches the frontend view
-    # Ordenar antes de borrar para asegurar que el índice coincida con la vista
-    memoria_olimpo.sort(key=lambda x: x['prioridad'], reverse=True)
-    if 0 <= indice < len(memoria_olimpo):
-        eliminado = memoria_olimpo.pop(indice)
-        return {"mensaje": f"Desterrado al Tártaro: {eliminado['titulo']}"}
-    return {"error": "No existe"}
+@app.get("/buscar")
+def buscar_destino(termino: str):
+    # INTEGRACIÓN PASO 3: Estandarización de Búsquedas (ignora mayúsculas/minúsculas)
+    # EN: Normalize search term / ES: Normalizar término de búsqueda
+    termino_limpio = funciones.estandarizar_dato(termino)
+    
+    resultados = []
+    for d in base_datos_destinos:
+        # EN: Normalize database name / ES: Normalizar nombre en base de datos
+        nombre_bd = funciones.estandarizar_dato(d["nombre"])
+        if termino_limpio in nombre_bd:
+            resultados.append(d)
+            
+    if not resultados:
+        return {"mensaje": "EN: Not found / ES: No encontrado"}
+    return {"resultados": resultados}
