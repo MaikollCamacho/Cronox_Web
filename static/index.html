@@ -3,196 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRONOX | EN: Time Oracle / ES: Oráculo del Tiempo</title>
+    <title>CRONOX | Oracle of Time / Oráculo del Tiempo</title>
     <style>
-        /* EN: Professional and Thematic Design / ES: Diseño Profesional y Temático */
         :root {
             --oro: #D4AF37;
-            --fondo-oscuro: #121212;
-            --tarjeta: #1E1E1E;
-            --texto: #E0E0E0;
-            --rojo: #8B0000;
+            --fondo-base: #0a0000;
+            --tarjeta: rgba(25, 25, 25, 0.9);
+            --texto: #f0f0f0;
+            /* Colores de Prioridad Requeridos */
+            --rojo-prioridad: #ff4d4d;
+            --amarillo-prioridad: #ffcc00;
+            --azul-prioridad: #3399ff;
         }
+
+        /* --- FONDO DE RELOJ ROJO ANIMADO --- */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--fondo-oscuro);
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--fondo-base);
             color: var(--texto);
             margin: 0;
-            padding: 20px;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
+
+        /* Efecto de manecilla de reloj girando en el fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 200vw;
+            height: 200vw;
+            margin-left: -100vw;
+            margin-top: -100vw;
+            background: conic-gradient(from 0deg, transparent 0%, rgba(255, 0, 0, 0.1) 10%, transparent 20%);
+            animation: rotacionReloj 15s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotacionReloj {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         h1 {
             color: var(--oro);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-            text-align: center;
+            letter-spacing: 4px;
+            margin-top: 30px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
         }
+
         .contenedor {
             display: flex;
-            gap: 30px;
-            width: 100%;
-            max-width: 1000px;
-            margin-top: 20px;
+            gap: 25px;
+            width: 90%;
+            max-width: 1100px;
+            margin-top: 30px;
             flex-wrap: wrap;
+            padding-bottom: 50px;
         }
+
         .panel {
-            background-color: var(--tarjeta);
+            background: var(--tarjeta);
             padding: 25px;
-            border-radius: 10px;
-            border: 1px solid #333;
+            border-radius: 15px;
+            border: 1px solid #330000;
             flex: 1;
-            min-width: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            min-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
         }
+
         .panel h2 {
             color: var(--oro);
-            border-bottom: 1px solid var(--oro);
+            border-bottom: 2px solid var(--oro);
             padding-bottom: 10px;
+            font-size: 1.4em;
         }
+
+        label { display: block; margin-top: 15px; font-weight: bold; color: #ccc; }
         input, select, button {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 8px;
             border: 1px solid #444;
-            background-color: #2A2A2A;
+            background: rgba(0,0,0,0.6);
             color: white;
             box-sizing: border-box;
         }
+
         button {
-            background-color: var(--oro);
+            background: var(--oro);
             color: black;
             font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
             border: none;
+            cursor: pointer;
+            transition: 0.3s;
             text-transform: uppercase;
+            margin-top: 20px;
         }
+
         button:hover {
-            background-color: #F3E5AB;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+            background: #f1d56e;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
         }
+
+        /* --- ANIMACIONES DE TAREAS --- */
         .destino-card {
-            background: #2A2A2A;
-            border-left: 4px solid var(--oro);
-            padding: 15px;
+            background: rgba(40, 40, 40, 0.8);
             margin-bottom: 15px;
-            border-radius: 4px;
+            padding: 15px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            animation: entradaTarea 0.5s ease-out; /* Animación de creación */
+            transition: 0.4s;
         }
-        .btn-destruir {
-            background-color: var(--rojo);
+
+        @keyframes entradaTarea {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .salida-tarea {
+            opacity: 0;
+            transform: translateX(50px);
+            pointer-events: none;
+        }
+
+        /* Colores por Prioridad Requeridos */
+        .prio-alta { border-left: 8px solid var(--rojo-prioridad); }
+        .prio-media { border-left: 8px solid var(--amarillo-prioridad); }
+        .prio-baja { border-left: 8px solid var(--azul-prioridad); }
+
+        .btn-delete {
+            background: #660000;
             color: white;
             width: auto;
-            padding: 5px 15px;
+            padding: 8px 15px;
+            margin: 0;
+            font-size: 0.8em;
         }
+        .btn-delete:hover { background: #ff0000; }
     </style>
 </head>
 <body>
 
-    <h1>⚡ CRONOX: EN: Time Oracle / ES: Oráculo del Tiempo ⚡</h1>
+    <h1>⚡ Oracle of Time / Oráculo del Tiempo ⚡</h1>
 
     <div class="contenedor">
         <div class="panel">
-            <h2>📜 EN: Forge Destiny / ES: Forjar Destino</h2>
-            <form id="formulario-destino">
-                <label>EN: Oracle ID / ES: ID Oráculo (Ej: DEST-01):</label>
+            <h2>📜 Forge Destiny / Forjar Destino</h2>
+            <form id="form-cronox">
+                <label>Oracle ID / ID Oráculo (DEST-01):</label>
                 <input type="text" id="id_oraculo" required>
                 
-                <label>EN: Task Name / ES: Nombre de la Tarea:</label>
+                <label>Task Name / Nombre de la Tarea:</label>
                 <input type="text" id="nombre" required>
                 
-                <label>EN: Days Left / ES: Días Restantes:</label>
+                <label>Days Left / Días Restantes:</label>
                 <input type="number" id="dias" min="1" required>
                 
-                <label>EN: Priority Level / ES: Nivel de Prioridad:</label>
+                <label>Priority Level / Nivel de Prioridad:</label>
                 <select id="prioridad">
-                    <option value="alta">EN: High / ES: Alta</option>
-                    <option value="media">EN: Medium / ES: Media</option>
-                    <option value="baja">EN: Low / ES: Baja</option>
+                    <option value="alta">High / Alta (Rojo)</option>
+                    <option value="media">Medium / Media (Amarillo)</option>
+                    <option value="baja">Low / Baja (Azul)</option>
                 </select>
                 
-                <button type="submit">EN: Consecrate to Olympus / ES: Consagrar al Olimpo</button>
+                <button type="submit">Consecrate / Consagrar</button>
             </form>
-            <p id="mensaje-sistema" style="color: var(--oro); font-weight: bold; text-align: center;"></p>
+            <p id="msg" style="color: var(--oro); text-align: center; margin-top: 15px; font-weight: bold;"></p>
         </div>
 
         <div class="panel">
-            <h2>🏛️ EN: Destiny Tapestry / ES: Tapiz del Destino</h2>
-            <button onclick="cargarDestinos()" style="background-color: #333; color: white;">🔄 EN: Update Tapestry / ES: Actualizar Tapiz</button>
-            <div id="lista-destinos" style="margin-top: 20px;">
-                </div>
+            <h2>🏛️ Destiny Tapestry / Tapiz del Destino</h2>
+            <button onclick="cargarTodo()" style="background: #222; color: #fff; margin-bottom: 20px;">🔄 Update / Actualizar</button>
+            <div id="lista"></div>
         </div>
     </div>
 
     <script>
-        const API_URL = "http://127.0.0.1:8000"; // Cambiar por tu link de Vercel cuando lo subas
+        const API = "http://127.0.0.1:8000"; 
 
-        // 1. EN: Send data (Create) / ES: Enviar datos (Crear)
-        document.getElementById("formulario-destino").addEventListener("submit", async function(e) {
+        // Crear tarea
+        document.getElementById("form-cronox").addEventListener("submit", async (e) => {
             e.preventDefault();
-            
-            const destino = {
-                // G5 Frontend logic: .trim() es el equivalente de .strip() en JS
-                id_oraculo: document.getElementById("id_oraculo").value.trim(),
-                nombre: document.getElementById("nombre").value.trim(),
+            const data = {
+                id_oraculo: document.getElementById("id_oraculo").value,
+                nombre: document.getElementById("nombre").value,
                 dias: parseInt(document.getElementById("dias").value),
                 prioridad: document.getElementById("prioridad").value
             };
 
-            const respuesta = await fetch(`${API_URL}/forjar`, {
+            const res = await fetch(`${API}/forjar`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(destino)
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
             });
-
-            const resultado = await respuesta.json();
-            document.getElementById("mensaje-sistema").innerText = resultado.mensaje;
-            cargarDestinos(); 
+            const resData = await res.json();
+            document.getElementById("msg").innerText = resData.mensaje;
+            if(resData.status === "success") {
+                document.getElementById("form-cronox").reset();
+                cargarTodo();
+            }
         });
 
-        // 2. EN: Read data (Consult) / ES: Leer datos (Consultar)
-        async function cargarDestinos() {
-            const respuesta = await fetch(`${API_URL}/destinos/ordenados`);
-            const datos = await respuesta.json();
-            const contenedor = document.getElementById("lista-destinos");
-            contenedor.innerHTML = "";
+        // Cargar y colorear por prioridad
+        async function cargarTodo() {
+            const res = await fetch(`${API}/destinos/ordenados`);
+            const data = await res.json();
+            const box = document.getElementById("lista");
+            box.innerHTML = "";
 
-            if (datos.destinos_ordenados && datos.destinos_ordenados.length > 0) {
-                datos.destinos_ordenados.forEach(d => {
-                    contenedor.innerHTML += `
-                        <div class="destino-card">
+            if(data.destinos_ordenados) {
+                data.destinos_ordenados.forEach(d => {
+                    // Mapeo de colores por prioridad
+                    const clasePrio = `prio-${d.prioridad.toLowerCase()}`;
+                    
+                    box.innerHTML += `
+                        <div class="destino-card ${clasePrio}" id="card-${d.id_oraculo}">
                             <div>
-                                <strong style="color: var(--oro);">${d.nombre}</strong><br>
-                                <small>ID: ${d.id_oraculo} | EN: Days / ES: Días: ${d.dias} | EN: Energy / ES: Energía: ${d.energia}</small>
+                                <strong style="color: var(--oro); font-size: 1.1em;">${d.nombre}</strong><br>
+                                <small>ID: ${d.id_oraculo} | Days/Días: ${d.dias} | Energy/Energía: ${d.energia}</small>
                             </div>
-                            <button class="btn-destruir" onclick="destruirDestino('${d.id_oraculo}')">EN: Destroy / ES: Destruir</button>
+                            <button class="btn-delete" onclick="borrar('${d.id_oraculo}')">Destroy / Destruir</button>
                         </div>
                     `;
                 });
-            } else {
-                contenedor.innerHTML = "<p>EN: Empty tapestry. / ES: El tapiz está vacío.</p>";
             }
         }
 
-        // 3. EN: Delete data / ES: Eliminar datos
-        async function destruirDestino(id) {
-            // BIL: Bilingual confirmation alert
-            if(confirm(`EN: Are you sure you want to destroy destiny ${id}?\nES: ¿Estás seguro de destruir el destino ${id}?`)) {
-                const respuesta = await fetch(`${API_URL}/destruir/${id}`, { method: "DELETE" });
-                const resultado = await respuesta.json();
-                document.getElementById("mensaje-sistema").innerText = resultado.mensaje;
-                cargarDestinos();
-            }
+        // Eliminar con animación
+        async function borrar(id) {
+            const card = document.getElementById(`card-${id}`);
+            card.classList.add('salida-tarea'); // Inicia animación de salida
+            
+            setTimeout(async () => {
+                await fetch(`${API}/destruir/${id}`, {method: "DELETE"});
+                cargarTodo();
+            }, 400);
         }
 
-        // EN: Load destinies on page open / ES: Cargar destinos al abrir la página
-        cargarDestinos();
+        cargarTodo();
     </script>
 </body>
 </html>
