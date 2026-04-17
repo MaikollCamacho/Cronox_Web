@@ -1,75 +1,78 @@
-# EN: Main API routing file / ES: Archivo principal de rutas API
+# EN: Main API routing file / ES: Archivo principal de rutas API (BIL)
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import funciones 
+import funciones
 
 app = FastAPI()
 
-# AVANCE 6: Almacenamiento Dinámico (Uso de Listas en lugar de variables simples)
-# EN: Global list to store multiple records / ES: Lista global para guardar múltiples registros
+# EN: CORS configuration for frontend / ES: Configuración CORS para el frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# G7: DICCIONARIOS ANIDADOS / EN: Nested Dictionaries
+# ES: Lista global para guardar múltiples registros en memoria
 base_datos_destinos = []
 
 class DestinoInput(BaseModel):
+    id_oraculo: str
     nombre: str
     dias: int
     prioridad: str
 
-# AVANCE 6: Operación CRUD Básica (Agregar / Create)
 @app.post("/forjar")
 def forjar_destino(destino: DestinoInput):
-    # Avance 5: Limpieza de datos
+    # G5: TRATAMIENTO DE CADENAS / EN: String Treatment
+    id_limpio = destino.id_oraculo.strip().upper()
     nombre_limpio = destino.nombre.strip()
+    
+    # G5: ESTANDARIZACIÓN / EN: Standardization (Evitar duplicidad)
+    for d in base_datos_destinos:
+        if d["id_oraculo"] == id_limpio:
+            return {"status": "error", "mensaje": "ES: La clave ya existe. / EN: Key already exists."}
+
     energia = funciones.calcular_energia(destino.dias, destino.prioridad)
     
+    # G7: REGISTROS COMPLEJOS / EN: Complex Records (Diccionario Llave-Valor)
     nuevo_destino = {
+        "id_oraculo": id_limpio,
         "nombre": nombre_limpio,
         "dias": destino.dias,
+        "prioridad": destino.prioridad.strip().capitalize(),
         "energia": energia
     }
     
-    # AVANCE 6: Uso de .append() para almacenamiento dinámico
+    # G6: MÉTODOS DE LISTA / EN: List Methods (.append)
     base_datos_destinos.append(nuevo_destino)
+    
+    # G5: FORMATEO DE SALIDA / EN: Output Formatting (Imprime en consola)
     funciones.generar_reporte_consola(base_datos_destinos)
     
-    # AVANCE 6: Mensaje de confirmación bilingüe
-    return {
-        "status": "success",
-        "mensaje": f"ES: Registro exitoso. Destino '{nombre_limpio}' forjado. / EN: Success. Destiny forged.", 
-        "energia": energia
-    }
+    return {"status": "success", "mensaje": f"ES: Destino forjado con éxito. / EN: Destiny successfully forged."}
 
-# AVANCE 6: Operación CRUD Básica (Consultar / Read)
-@app.get("/destinos")
-def listar_destinos():
-    """
-    EN: Iterates the list to show all records / ES: Recorre la lista para mostrar todos los registros
-    """
+@app.get("/destinos/ordenados")
+def listar_destinos_ordenados():
     if not base_datos_destinos:
-        return {"mensaje": "ES: No hay destinos en el tapiz. / EN: Tapestry is empty."}
+        return {"mensaje": "ES: Tapiz vacío. / EN: Empty tapestry."}
     
-    # Preparamos una lista formateada recorriendo la base de datos original
-    lista_formateada = []
-    for i, destino in enumerate(base_datos_destinos, 1):
-        lista_formateada.append(f"{i}. {destino['nombre'].upper()} - Energía/Energy: {destino['energia']}")
-        
-    return {
-        "header": "ES: LISTADO ACTUAL DE DESTINOS / EN: CURRENT DESTINIES LIST",
-        "total_registros": len(base_datos_destinos),
-        "destinos": lista_formateada
-    }
+    # G6: ORDENAMIENTO / EN: Sorting (.sort)
+    # ES: Ordenar lista por nivel de energía de mayor a menor
+    base_datos_destinos.sort(key=lambda x: x["energia"], reverse=True)
+    
+    return {"destinos_ordenados": base_datos_destinos}
 
-@app.get("/buscar")
-def buscar_destino(termino: str):
-    # Avance 5 y 6: Búsqueda con tratamiento de cadenas
-    termino_limpio = funciones.estandarizar_dato(termino)
+@app.delete("/destruir/{id_buscar}")
+def destruir_destino(id_buscar: str):
+    id_limpio = id_buscar.strip().upper()
     
-    resultados = []
-    # Recorremos la lista con un ciclo for (Requisito Avance 6)
-    for d in base_datos_destinos:
-        nombre_bd = funciones.estandarizar_dato(d["nombre"])
-        if termino_limpio in nombre_bd:
-            resultados.append(d)
+    for destino in base_datos_destinos:
+        if destino["id_oraculo"] == id_limpio:
+            # G6: MÉTODOS DE LISTA / EN: List Methods (.remove)
+            base_datos_destinos.remove(destino)
+            return {"status": "success", "mensaje": "ES: Destino destruido. / EN: Destiny destroyed."}
             
-    if not resultados:
-        return {"mensaje": "EN: Item not found / ES: Item no encontrado"}
-    return {"resultados": resultados}
+    return {"status": "error", "mensaje": "ES: Clave no encontrada. / EN: Key not found."}
