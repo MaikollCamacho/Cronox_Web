@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRONOX | Oracle of Time / Oráculo del Tiempo</title>
+    <title>CRONOX | Oracle of Time</title>
     <style>
         :root {
             --oro: #D4AF37;
-            --fondo-base: #0a0000;
-            --tarjeta: rgba(25, 25, 25, 0.9);
+            --fondo-base: #110000;
+            --tarjeta: rgba(20, 20, 20, 0.85);
             --texto: #f0f0f0;
-            /* Colores de Prioridad Requeridos */
-            --rojo-prioridad: #ff4d4d;
-            --amarillo-prioridad: #ffcc00;
-            --azul-prioridad: #3399ff;
+            --prio-alta: #ff3333;
+            --prio-media: #ffcc00;
+            --prio-baja: #3399ff;
         }
 
-        /* --- FONDO DE RELOJ ROJO ANIMADO --- */
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: var(--fondo-base);
@@ -29,7 +27,7 @@
             min-height: 100vh;
         }
 
-        /* Efecto de manecilla de reloj girando en el fondo */
+        /* FONDO ANIMADO DE RELOJ */
         body::before {
             content: '';
             position: fixed;
@@ -39,8 +37,8 @@
             height: 200vw;
             margin-left: -100vw;
             margin-top: -100vw;
-            background: conic-gradient(from 0deg, transparent 0%, rgba(255, 0, 0, 0.1) 10%, transparent 20%);
-            animation: rotacionReloj 15s linear infinite;
+            background: conic-gradient(from 0deg, transparent 0%, rgba(200, 0, 0, 0.15) 5%, transparent 15%, transparent 50%, rgba(200, 0, 0, 0.15) 55%, transparent 65%);
+            animation: rotacionReloj 40s linear infinite;
             z-index: -1;
         }
 
@@ -52,14 +50,14 @@
         h1 {
             color: var(--oro);
             text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-top: 30px;
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+            letter-spacing: 5px;
+            margin-top: 40px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
         }
 
         .contenedor {
             display: flex;
-            gap: 25px;
+            gap: 30px;
             width: 90%;
             max-width: 1100px;
             margin-top: 30px;
@@ -69,32 +67,45 @@
 
         .panel {
             background: var(--tarjeta);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid #330000;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #440000;
             flex: 1;
             min-width: 320px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
         }
 
         .panel h2 {
             color: var(--oro);
-            border-bottom: 2px solid var(--oro);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
             padding-bottom: 10px;
-            font-size: 1.4em;
+            font-size: 1.3em;
         }
 
-        label { display: block; margin-top: 15px; font-weight: bold; color: #ccc; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #bbb; font-size: 0.9em; text-transform: uppercase;}
+        
         input, select, button {
             width: 100%;
             padding: 12px;
             margin-top: 8px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: rgba(0,0,0,0.6);
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: rgba(0,0,0,0.7);
             color: white;
             box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--oro);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Dropdown solo con colores */
+        select option {
+            background-color: #222;
         }
 
         button {
@@ -105,77 +116,94 @@
             cursor: pointer;
             transition: 0.3s;
             text-transform: uppercase;
-            margin-top: 20px;
+            margin-top: 25px;
+            letter-spacing: 2px;
         }
 
         button:hover {
-            background: #f1d56e;
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            background: #fff0b3;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
         }
 
-        /* --- ANIMACIONES DE TAREAS --- */
+        /* ANIMACIONES Y TARJETAS */
         .destino-card {
-            background: rgba(40, 40, 40, 0.8);
+            background: rgba(30, 30, 30, 0.9);
             margin-bottom: 15px;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 15px 20px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            animation: entradaTarea 0.5s ease-out; /* Animación de creación */
-            transition: 0.4s;
+            animation: entradaElegante 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            transition: all 0.4s;
+            border: 1px solid #333;
+            opacity: 0; /* Para la animación */
         }
 
-        @keyframes entradaTarea {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes entradaElegante {
+            0% { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .salida-tarea {
-            opacity: 0;
-            transform: translateX(50px);
+            opacity: 0 !important;
+            transform: translateX(80px) !important;
             pointer-events: none;
         }
 
-        /* Colores por Prioridad Requeridos */
-        .prio-alta { border-left: 8px solid var(--rojo-prioridad); }
-        .prio-media { border-left: 8px solid var(--amarillo-prioridad); }
-        .prio-baja { border-left: 8px solid var(--azul-prioridad); }
+        /* Clases de colores dinámicos */
+        .prio-alta { border-left: 6px solid var(--prio-alta); box-shadow: -5px 0 15px rgba(255,51,51,0.1); }
+        .prio-media { border-left: 6px solid var(--prio-media); box-shadow: -5px 0 15px rgba(255,204,0,0.1); }
+        .prio-baja { border-left: 6px solid var(--prio-baja); box-shadow: -5px 0 15px rgba(51,153,255,0.1); }
+
+        .contador-tiempo {
+            font-family: monospace;
+            font-size: 1.1em;
+            color: var(--oro);
+            background: rgba(0,0,0,0.5);
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: inline-block;
+        }
 
         .btn-delete {
-            background: #660000;
-            color: white;
+            background: transparent;
+            color: #ff4444;
+            border: 1px solid #ff4444;
             width: auto;
             padding: 8px 15px;
             margin: 0;
             font-size: 0.8em;
         }
-        .btn-delete:hover { background: #ff0000; }
+        
+        .btn-delete:hover { 
+            background: #ff4444; 
+            color: white; 
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
 
-    <h1>⚡ Oracle of Time / Oráculo del Tiempo ⚡</h1>
+    <h1>⚡ Oracle of Time ⚡</h1>
 
     <div class="contenedor">
         <div class="panel">
-            <h2>📜 Forge Destiny / Forjar Destino</h2>
+            <h2>📜 Forge Destiny</h2>
             <form id="form-cronox">
-                <label>Oracle ID / ID Oráculo (DEST-01):</label>
-                <input type="text" id="id_oraculo" required>
-                
                 <label>Task Name / Nombre de la Tarea:</label>
-                <input type="text" id="nombre" required>
+                <input type="text" id="nombre" placeholder="Ej: Sustentar Proyecto" required>
                 
-                <label>Days Left / Días Restantes:</label>
-                <input type="number" id="dias" min="1" required>
+                <label>Due Date / Fecha de Entrega:</label>
+                <input type="datetime-local" id="fecha_entrega" required>
                 
-                <label>Priority Level / Nivel de Prioridad:</label>
+                <label>Priority / Prioridad:</label>
                 <select id="prioridad">
-                    <option value="alta">High / Alta (Rojo)</option>
-                    <option value="media">Medium / Media (Amarillo)</option>
-                    <option value="baja">Low / Baja (Azul)</option>
+                    <option value="alta">🔴 High / Alta</option>
+                    <option value="media">🟡 Medium / Media</option>
+                    <option value="baja">🔵 Low / Baja</option>
                 </select>
                 
                 <button type="submit">Consecrate / Consagrar</button>
@@ -184,8 +212,7 @@
         </div>
 
         <div class="panel">
-            <h2>🏛️ Destiny Tapestry / Tapiz del Destino</h2>
-            <button onclick="cargarTodo()" style="background: #222; color: #fff; margin-bottom: 20px;">🔄 Update / Actualizar</button>
+            <h2>🏛️ Destiny Tapestry</h2>
             <div id="lista"></div>
         </div>
     </div>
@@ -193,66 +220,99 @@
     <script>
         const API = "http://127.0.0.1:8000"; 
 
-        // Crear tarea
+        // 1. FORJAR TAREA
         document.getElementById("form-cronox").addEventListener("submit", async (e) => {
             e.preventDefault();
             const data = {
-                id_oraculo: document.getElementById("id_oraculo").value,
                 nombre: document.getElementById("nombre").value,
-                dias: parseInt(document.getElementById("dias").value),
+                fecha_entrega: document.getElementById("fecha_entrega").value,
                 prioridad: document.getElementById("prioridad").value
             };
 
-            const res = await fetch(`${API}/forjar`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(data)
-            });
-            const resData = await res.json();
-            document.getElementById("msg").innerText = resData.mensaje;
-            if(resData.status === "success") {
-                document.getElementById("form-cronox").reset();
-                cargarTodo();
+            try {
+                const res = await fetch(`${API}/forjar`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(data)
+                });
+                const resData = await res.json();
+                document.getElementById("msg").innerText = resData.mensaje;
+                if(resData.status === "success") {
+                    document.getElementById("form-cronox").reset();
+                    cargarTodo();
+                }
+            } catch (error) {
+                document.getElementById("msg").innerText = "Error: El servidor local no está encendido.";
             }
         });
 
-        // Cargar y colorear por prioridad
+        // 2. CARGAR TAPIZ
         async function cargarTodo() {
-            const res = await fetch(`${API}/destinos/ordenados`);
-            const data = await res.json();
-            const box = document.getElementById("lista");
-            box.innerHTML = "";
+            try {
+                const res = await fetch(`${API}/destinos/ordenados`);
+                const data = await res.json();
+                const box = document.getElementById("lista");
+                box.innerHTML = "";
 
-            if(data.destinos_ordenados) {
-                data.destinos_ordenados.forEach(d => {
-                    // Mapeo de colores por prioridad
-                    const clasePrio = `prio-${d.prioridad.toLowerCase()}`;
-                    
-                    box.innerHTML += `
-                        <div class="destino-card ${clasePrio}" id="card-${d.id_oraculo}">
-                            <div>
-                                <strong style="color: var(--oro); font-size: 1.1em;">${d.nombre}</strong><br>
-                                <small>ID: ${d.id_oraculo} | Days/Días: ${d.dias} | Energy/Energía: ${d.energia}</small>
+                if(data.destinos_ordenados && data.destinos_ordenados.length > 0) {
+                    data.destinos_ordenados.forEach(d => {
+                        const clasePrio = `prio-${d.prioridad.toLowerCase()}`;
+                        box.innerHTML += `
+                            <div class="destino-card ${clasePrio}" id="card-${d.id_oraculo}">
+                                <div>
+                                    <strong style="color: white; font-size: 1.2em; letter-spacing: 1px;">${d.nombre}</strong><br>
+                                    <small style="color: #888;">ID: ${d.id_oraculo} | Energy: ${d.energia}</small><br>
+                                    <div class="contador-tiempo" data-fecha="${d.fecha_entrega}">Calculando...</div>
+                                </div>
+                                <button class="btn-delete" onclick="borrar('${d.id_oraculo}')">Destroy</button>
                             </div>
-                            <button class="btn-delete" onclick="borrar('${d.id_oraculo}')">Destroy / Destruir</button>
-                        </div>
-                    `;
-                });
+                        `;
+                    });
+                } else {
+                    box.innerHTML = "<p style='text-align:center; color:#666;'>El tapiz está vacío.</p>";
+                }
+            } catch (error) {
+                document.getElementById("lista").innerHTML = "<p style='color: red;'>Asegúrate de tener Uvicorn corriendo.</p>";
             }
         }
 
-        // Eliminar con animación
+        // 3. DESTRUIR TAREA (Con Animación)
         async function borrar(id) {
             const card = document.getElementById(`card-${id}`);
-            card.classList.add('salida-tarea'); // Inicia animación de salida
+            card.classList.add('salida-tarea'); 
             
             setTimeout(async () => {
                 await fetch(`${API}/destruir/${id}`, {method: "DELETE"});
                 cargarTodo();
-            }, 400);
+            }, 400); // Espera 0.4s para que termine la animación visual antes de recargar
         }
 
+        // 4. MOTOR DEL CONTADOR (Se actualiza cada segundo)
+        function actualizarRelojes() {
+            const contadores = document.querySelectorAll('.contador-tiempo');
+            
+            contadores.forEach(contador => {
+                const fechaDestino = new Date(contador.getAttribute('data-fecha')).getTime();
+                const ahora = new Date().getTime();
+                const distancia = fechaDestino - ahora;
+
+                if (distancia < 0) {
+                    contador.innerHTML = "⚠️ TIEMPO AGOTADO";
+                    contador.style.color = "#ff4444";
+                } else {
+                    const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
+                    const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+                    const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+                    
+                    contador.innerHTML = `⏳ ${dias}d ${horas}h ${minutos}m ${segundos}s`;
+                }
+            });
+        }
+
+        // Arrancar el sistema
         cargarTodo();
+        setInterval(actualizarRelojes, 1000); // Ejecuta el reloj cada 1 segundo (1000ms)
     </script>
 </body>
 </html>
