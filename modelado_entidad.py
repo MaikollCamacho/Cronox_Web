@@ -26,3 +26,4 @@ base_datos = [
 ]
 print(f"BD Simulada: {base_datos}")
 print("="*50 + "\n")
+print("="*50 + "\n")
