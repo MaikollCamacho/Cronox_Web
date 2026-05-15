@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import funciones
+import api.funciones as funciones
 import uuid 
 
 app = FastAPI()
